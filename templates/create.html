@@ -1,0 +1,302 @@
+{% extends 'base.html' %}
+
+{% block title %}Create New Record | Drawing Library{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+    <a href="{{ url_for('dashboard') }}">Dashboard</a>
+    <span class="breadcrumb-separator">/</span>
+    <span>Create Record</span>
+</div>
+
+<div class="form-card">
+    <h1 class="form-title">Add Repository Content</h1>
+
+    <!-- Nav Tab Selector -->
+    <div class="tab-menu">
+        <a href="?type=section" class="tab-item {% if type == 'section' %}active{% endif %}" id="tab-section">Section</a>
+        <a href="?type=folder" class="tab-item {% if type == 'folder' %}active{% endif %}" id="tab-folder">Folder</a>
+        <a href="?type=drawing" class="tab-item {% if type == 'drawing' %}active{% endif %}" id="tab-drawing">Drawing</a>
+    </div>
+
+    <!-- 1. CREATE SECTION FORM -->
+    {% if type == 'section' %}
+    <form action="{{ url_for('add_item') }}" method="POST">
+        <input type="hidden" name="item_type" value="section">
+        
+        <div class="form-group">
+            <label class="form-label" for="sec-name">Section Name</label>
+            <input type="text" id="sec-name" name="name" class="form-control" placeholder="e.g. Structural Engineering, Piping, HVAC" required>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="sec-desc">Description</label>
+            <textarea id="sec-desc" name="description" class="form-control" placeholder="Describe the engineering scope or department drawings contained under this section..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Theme Visual Accent Color</label>
+            <div class="color-options">
+                <label class="color-option">
+                    <input type="radio" name="color_theme" value="blue" checked>
+                    <span class="color-color blue"></span>
+                </label>
+                <label class="color-option">
+                    <input type="radio" name="color_theme" value="violet">
+                    <span class="color-color violet"></span>
+                </label>
+                <label class="color-option">
+                    <input type="radio" name="color_theme" value="emerald">
+                    <span class="color-color emerald"></span>
+                </label>
+                <label class="color-option">
+                    <input type="radio" name="color_theme" value="amber">
+                    <span class="color-color amber"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">Save Section</button>
+        </div>
+    </form>
+
+    <!-- 2. CREATE FOLDER FORM -->
+    {% elif type == 'folder' %}
+    <form action="{{ url_for('add_item') }}" method="POST">
+        <input type="hidden" name="item_type" value="folder">
+
+        <div class="form-group">
+            <label class="form-label" for="fld-section">Parent Section</label>
+            <select id="fld-section" name="section_id" class="form-control" required>
+                <option value="" disabled selected>-- Select Parent Section --</option>
+                {% for sec in sections %}
+                    {% if '_' in sec.name and sec.name.split('_')[0].isdigit() %}
+                        {% set sec_name_clean = sec.name.split('_')[1:] | join(' ') %}
+                    {% else %}
+                        {% set sec_name_clean = sec.name %}
+                    {% endif %}
+                    <option value="{{ sec.id }}" {% if request.args.get('section_id')|int == sec.id %}selected{% endif %}>{{ sec_name_clean }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label" for="fld-name">Folder Name</label>
+            <input type="text" id="fld-name" name="name" class="form-control" placeholder="e.g. Ventilation & Air Conditioning, Layout Plans" required>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="fld-desc">Description</label>
+            <textarea id="fld-desc" name="description" class="form-control" placeholder="Enter folder sub-category storage notes..."></textarea>
+        </div>
+
+        <div class="form-actions">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">Save Folder</button>
+        </div>
+    </form>
+    
+    <!-- 3. CREATE DRAWING FORM -->
+    {% elif type == 'drawing' %}
+    <form action="{{ url_for('add_item') }}" method="POST" enctype="multipart/form-data" id="upload-drawing-form">
+        <input type="hidden" name="item_type" value="drawing">
+
+        <!-- Dynamic Folder Cascade Container -->
+        <div id="dynamic-folder-cascade">
+            <div class="form-group">
+                <label class="form-label" for="drg-section">Select Section Location</label>
+                <select id="drg-section" class="form-control section-cascade-select" required>
+                    <option value="" disabled selected>-- Select Section --</option>
+                    {% for sec in sections %}
+                        {% if '_' in sec.name and sec.name.split('_')[0].isdigit() %}
+                            {% set sec_name_clean = sec.name.split('_')[1:] | join(' ') %}
+                        {% else %}
+                            {% set sec_name_clean = sec.name %}
+                        {% endif %}
+                        <option value="{{ sec.id }}">{{ sec_name_clean }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <!-- JavaScript will insert cascading dropdowns here -->
+            <div id="cascade-dropdowns-container"></div>
+            
+            <!-- Hidden input to store the final selected folder_id -->
+            <input type="hidden" id="drg-folder-id" name="folder_id" value="" required>
+        </div>
+        
+        <div class="form-group" style="margin-top: 1.5rem;">
+            <label class="form-label" for="drg-title">Drawing / File Title</label>
+            <input type="text" id="drg-title" name="title" class="form-control" placeholder="e.g. GA Drawing - Wagon Tippler System" required>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="drg-desc">Description & Scope</label>
+            <textarea id="drg-desc" name="description" class="form-control" placeholder="Describe the document specifications..."></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label" for="drg-file">Upload Drawing Document File</label>
+            <input type="file" id="drg-file" name="file" required style="color: var(--text-primary); cursor: pointer; padding: 0.5rem 0;">
+        </div>
+
+        <!-- Dynamic Upload Path Label Info tag -->
+        <div id="upload-path-preview" style="display: none; padding: 1rem; border-radius: 12px; background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.15); margin-bottom: 1.75rem; font-size: 0.875rem;">
+            <strong style="color: var(--color-blue); display: block; margin-bottom: 0.25rem;">Target Upload Directory Path:</strong>
+            <code id="upload-path-text" style="color: var(--text-secondary); word-break: break-all; font-family: 'Fira Code', monospace; font-size: 0.8rem;">storage/</code>
+        </div>
+
+        <div class="form-actions">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary" id="submit-btn" disabled>Upload Drawing</button>
+        </div>
+    </form>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const sectionSelect = document.querySelector('.section-cascade-select');
+        const container = document.getElementById('cascade-dropdowns-container');
+        const hiddenFolderInput = document.getElementById('drg-folder-id');
+        const pathPreview = document.getElementById('upload-path-preview');
+        const pathText = document.getElementById('upload-path-text');
+        const submitBtn = document.getElementById('submit-btn');
+
+        let selectionTrail = [];
+
+        if (sectionSelect) {
+            sectionSelect.addEventListener('change', function() {
+                container.innerHTML = '';
+                hiddenFolderInput.value = '';
+                pathPreview.style.display = 'none';
+                submitBtn.disabled = true;
+
+                const sectionId = this.value;
+                const sectionText = this.options[this.selectedIndex].text;
+                if (!sectionId) return;
+
+                selectionTrail = [sectionText];
+
+                fetch(`/api/sections/${sectionId}/folders`)
+                    .then(res => res.json())
+                    .then(folders => {
+                        if (folders.length > 0) {
+                            createDropdown(folders, 1, 'Select Folder');
+                        } else {
+                            pathText.innerText = 'storage/' + sectionText + '/';
+                            pathPreview.style.display = 'block';
+                            alert('Info: This section has no folders created yet.');
+                        }
+                    });
+            });
+        }
+
+        function createDropdown(folders, level, labelText) {
+            // Remove dropdowns at or deeper than this level
+            const existingWrappers = container.querySelectorAll('.cascade-level-wrapper');
+            existingWrappers.forEach(wrapper => {
+                if (parseInt(wrapper.dataset.level) >= level) {
+                    wrapper.remove();
+                }
+            });
+
+            // Trim selection trail to match current level
+            selectionTrail = selectionTrail.slice(0, level);
+
+            // Clear hidden input and disable submit button until leaf is chosen
+            hiddenFolderInput.value = '';
+            submitBtn.disabled = true;
+            pathPreview.style.display = 'none';
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'form-group cascade-level-wrapper';
+            wrapper.dataset.level = level;
+            wrapper.style.marginTop = '1.25rem';
+
+            const label = document.createElement('label');
+            label.className = 'form-label';
+            label.innerText = labelText;
+
+            const select = document.createElement('select');
+            select.className = 'form-control';
+            select.required = true;
+
+            const defaultOpt = document.createElement('option');
+            defaultOpt.value = '';
+            defaultOpt.disabled = true;
+            defaultOpt.selected = true;
+            defaultOpt.innerText = `-- Choose ${labelText} --`;
+            select.appendChild(defaultOpt);
+
+            folders.forEach(f => {
+                const opt = document.createElement('option');
+                opt.value = f.id;
+                opt.innerText = f.name;
+                opt.setAttribute('data-has-sub', f.has_subfolders ? 'true' : 'false');
+                select.appendChild(opt);
+            });
+
+            select.addEventListener('change', function() {
+                const selectedFolderId = this.value;
+                const selectedText = this.options[this.selectedIndex].text;
+                const hasSub = this.options[this.selectedIndex].getAttribute('data-has-sub') === 'true';
+
+                console.log(`[CASCADE] Changed level ${level} -> selected folder: ${selectedText} (ID: ${selectedFolderId}), hasSubfolders: ${hasSub}`);
+
+                // Update trail
+                selectionTrail = selectionTrail.slice(0, level);
+                selectionTrail.push(selectedText);
+
+                // Update input target
+                hiddenFolderInput.value = selectedFolderId;
+                
+                // Show path preview
+                pathText.innerText = 'storage/' + selectionTrail.join(' / ') + '/';
+                pathPreview.style.display = 'block';
+
+                // Remove deeper dropdowns
+                const deeper = container.querySelectorAll('.cascade-level-wrapper');
+                deeper.forEach(w => {
+                    if (parseInt(w.dataset.level) > level) {
+                        w.remove();
+                    }
+                });
+
+                if (hasSub) {
+                    // Disable submission until final leaf subfolder is selected
+                    submitBtn.disabled = true;
+                    
+                    console.log(`[CASCADE] Fetching subfolders for folder ID: ${selectedFolderId}`);
+                    fetch(`/api/folders/${selectedFolderId}/subfolders`)
+                        .then(res => {
+                            console.log(`[CASCADE] API responded with status: ${res.status}`);
+                            return res.json();
+                        })
+                        .then(subfolders => {
+                            console.log('[CASCADE] Subfolders received:', subfolders);
+                            if (subfolders.length > 0) {
+                                createDropdown(subfolders, level + 1, 'Select Subfolder');
+                            } else {
+                                // If API says hasSub is true but returned empty list
+                                submitBtn.disabled = false;
+                            }
+                        })
+                        .catch(err => {
+                            console.error('[CASCADE] Error fetching subfolders:', err);
+                        });
+                } else {
+                    // Reached the leaf folder, enable submission!
+                    submitBtn.disabled = false;
+                }
+            });
+
+            wrapper.appendChild(label);
+            wrapper.appendChild(select);
+            container.appendChild(wrapper);
+        }
+    });
+    </script>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}Search results: "{{ query }}" | Drawing Library{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+    <a href="{{ url_for('dashboard') }}">Dashboard</a>
+    <span class="breadcrumb-separator">/</span>
+    <span>Search Results</span>
+</div>
+
+<div class="page-title-area" style="margin-bottom: 3rem;">
+    <h1 class="page-title">Global Search Results</h1>
+    <p class="page-desc">Matching database index files for query: <strong style="color: var(--color-blue);">"{{ query }}"</strong></p>
+</div>
+
+<section class="drawings-area">
+    <div class="drawings-header-row">
+        <h2 class="section-subtitle" style="font-size: 1.25rem;">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            Matching drawings catalog index
+        </h2>
+        <span class="drawings-count">Found <strong>{{ count }}</strong> matches</span>
+    </div>
+
+    {% if results %}
+        <div class="drawings-grid">
+            {% for item in results %}
+                <a href="{{ url_for('drawing_detail', drawing_id=item.drawing.id) }}" class="drawing-card theme-{{ item.section.color_theme }}">
+                    <h3 class="drawing-title">{{ item.drawing.title }}</h3>
+                    <p class="drawing-desc-short">{{ item.drawing.description }}</p>
+                    
+                    <div class="drawing-card-footer" style="flex-direction: column; align-items: flex-start; gap: 0.5rem;">
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">
+                            {% if '_' in item.section.name and item.section.name.split('_')[0].isdigit() %}
+                                {% set sec_name_clean = item.section.name.split('_')[1:] | join(' ') %}
+                            {% else %}
+                                {% set sec_name_clean = item.section.name %}
+                            {% endif %}
+                            Location: <strong>{{ sec_name_clean }}</strong> / <span>{{ item.folder.name }}</span>
+                        </div>
+                        <div style="display:flex; justify-content: space-between; width:100%; align-items:center; border-top:1px solid rgba(255,255,255,0.03); padding-top:0.5rem; margin-top:0.25rem;">
+                            <span>Added: {{ item.drawing.created_at.strftime('%Y-%m-%d') }}</span>
+                            <span style="color: var(--color-blue); font-weight:600;">Download your document →</span>
+                        </div>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <h3 class="empty-title">No Search Results Found</h3>
+            <p class="empty-desc">No drawings, reference numbers, or catalog items match your search term. Check spelling or try using partial terms (e.g. "STR" or "Pump").</p>
+            <div style="margin-top: 1.5rem; display: flex; justify-content: center;">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Back to Dashboard</a>
+            </div>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

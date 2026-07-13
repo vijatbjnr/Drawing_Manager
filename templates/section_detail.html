@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% set name_lower = section.name | lower %}
+{% if name_lower.startswith('01') %}
+    {% set sec_key = 'maintenance' %}
+    {% set sec_name_clean = section.name[3:] %}
+{% elif name_lower.startswith('02') %}
+    {% set sec_key = 'project_documents' %}
+    {% set sec_name_clean = section.name[3:] %}
+{% elif name_lower.startswith('03') %}
+    {% set sec_key = 'received_drg_docs_others' %}
+    {% set sec_name_clean = section.name[3:] %}
+{% elif name_lower.startswith('04') %}
+    {% set sec_key = 'process_control' %}
+    {% set sec_name_clean = section.name[3:] %}
+{% elif name_lower.startswith('05') %}
+    {% set sec_key = 'hr_training' %}
+    {% set sec_name_clean = section.name[3:] %}
+{% elif name_lower.startswith('06') %}
+    {% set sec_key = 'govt_records_-_copy' %}
+    {% set sec_name_clean = section.name[3:] %}
+{% else %}
+    {% set sec_key = name_lower | replace(' ', '_') %}
+    {% set sec_name_clean = section.name %}
+{% endif %}
+
+{% block title %}{{ sec_name_clean }} | Drawing Library{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+    <a href="{{ url_for('dashboard') }}">Dashboard</a>
+    <span class="breadcrumb-separator">/</span>
+    <span>{{ sec_name_clean }}</span>
+</div>
+
+<div class="page-title-area" style="display: flex; gap: 1.5rem; align-items: center;">
+    <div style="width: 72px; height: 72px; flex-shrink: 0; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(15,23,42,0.08); background: #fff; border: 1px solid rgba(15,23,42,0.04); display: flex; align-items: center; justify-content: center;">
+        <img src="{{ url_for('static', filename='resources/' ~ sec_key ~ '_card.png') }}" alt="{{ sec_name_clean }} Logo" style="width: 100%; height: 100%; object-fit: contain;">
+    </div>
+    <div>
+        <h1 class="page-title" style="font-size: 2rem; margin-bottom: 0.25rem;">{{ sec_name_clean }}</h1>
+        <p class="page-desc" style="margin: 0;">{{ section.description or 'Category containing structured engineering documents and folders.' }}</p>
+    </div>
+</div>
+
+<section class="section-subtitle">
+    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+    </svg>
+    Available Folders
+</section>
+
+<!-- Folders Grid. Theme class sets the color of icons on folder cards -->
+<div class="folder-grid theme-{{ section.color_theme }}">
+    {% for entry in folders %}
+        <a href="{{ url_for('folder_detail', folder_id=entry.folder.id) }}" class="folder-card">
+            <div class="folder-icon-wrap">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z"></path>
+                </svg>
+            </div>
+            
+            <h3 class="folder-title">{{ entry.folder.name }}</h3>
+            <p class="folder-desc">{{ entry.folder.description or 'No folder description specified.' }}</p>
+            
+            <div class="folder-footer" style="justify-content: flex-end;">
+                {% if entry.drawing_count > 0 %}
+                    <span class="folder-count-badge">{{ entry.drawing_count }} Drawings</span>
+                {% endif %}
+            </div>
+        </a>
+    {% else %}
+        <div class="empty-state" style="grid-column: 1 / -1;">
+            <div class="empty-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v3m-3 0h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <h3 class="empty-title">No Folders Found</h3>
+            <p class="empty-desc">This section does not contain any drawing folders yet.</p>
+        </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

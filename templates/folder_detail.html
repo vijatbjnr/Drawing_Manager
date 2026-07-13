@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ folder.name }} | Drawing Library{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+    <a href="{{ url_for('dashboard') }}">Dashboard</a>
+    <span class="breadcrumb-separator">/</span>
+    {% if '_' in section.name and section.name.split('_')[0].isdigit() %}
+        {% set sec_name_clean = section.name.split('_')[1:] | join(' ') %}
+    {% else %}
+        {% set sec_name_clean = section.name %}
+    {% endif %}
+    <a href="{{ url_for('section_detail', section_id=section.id) }}">{{ sec_name_clean }}</a>
+    {% for parent_folder in trail %}
+        <span class="breadcrumb-separator">/</span>
+        <a href="{{ url_for('folder_detail', folder_id=parent_folder.id) }}">{{ parent_folder.name }}</a>
+    {% endfor %}
+    <span class="breadcrumb-separator">/</span>
+    <span>{{ folder.name }}</span>
+</div>
+
+<div class="page-title-area">
+    <h1 class="page-title">{{ folder.name }}</h1>
+    <p class="page-desc">{{ folder.description or 'A collection of categorized blueprint and engineering drawings.' }}</p>
+</div>
+
+{% if subfolders %}
+<section style="margin-bottom: 2.5rem;">
+    <div class="folder-grid theme-{{ section.color_theme }}">
+        {% for entry in subfolders %}
+            <a href="{{ url_for('folder_detail', folder_id=entry.folder.id) }}" class="folder-card" style="padding: 1.25rem; min-height: auto;">
+                <div class="folder-icon-wrap" style="width: 36px; height: 36px; margin-bottom: 0.75rem;">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z"></path>
+                    </svg>
+                </div>
+                <h3 class="folder-title" style="font-size: 1.05rem; margin-bottom: 0.25rem;">{{ entry.folder.name }}</h3>
+                <div class="folder-footer" style="margin-top: 0.5rem; padding-top: 0.5rem; font-size: 0.75rem;">
+                    {% if entry.drawing_count > 0 %}
+                        <span>{{ entry.drawing_count }} Drawings</span>
+                    {% endif %}
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<!-- Folder Specific Search Filter (Only visible on leaf folders with no subfolders) -->
+{% if not folder.parent_id and not subfolders %}
+<div style="background: var(--bg-card); padding: 1rem; border-radius: 14px; margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--border-color); gap: 1rem;">
+    <form action="{{ url_for('folder_detail', folder_id=folder.id) }}" method="GET" style="display: flex; flex-grow: 1; gap: 0.75rem;">
+        <input type="text" name="q" class="form-control" placeholder="Filter drawings in this folder..." value="{{ q or '' }}" style="max-width: 400px; padding: 0.6rem 1rem;">
+        <button type="submit" class="btn btn-secondary" style="padding: 0.6rem 1.25rem;">Filter</button>
+        {% if q %}
+            <a href="{{ url_for('folder_detail', folder_id=folder.id) }}" class="btn btn-secondary" style="padding: 0.6rem 1.25rem; display: flex; align-items: center;">Clear</a>
+        {% endif %}
+    </form>
+    <div style="font-size: 0.9rem; color: var(--text-secondary);">
+        Found <strong>{{ drawings|length }}</strong> drawings
+    </div>
+</div>
+{% endif %}
+
+<section class="drawings-area">
+    {% if drawings %}
+        <div class="drawings-grid theme-{{ section.color_theme }}">
+            {% for drawing in drawings %}
+                <a href="{{ url_for('drawing_detail', drawing_id=drawing.id) }}" class="drawing-card">
+                    <h3 class="drawing-title">{{ drawing.title }}</h3>
+                    <p class="drawing-desc-short">{{ drawing.description or 'No drawing description available.' }}</p>
+                    <div class="drawing-card-footer">
+                        <span>Added: {{ drawing.created_at.strftime('%Y-%m-%d') }}</span>
+                        <span>Download your document →</span>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        {% if not subfolders %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <h3 class="empty-title">No Drawings Found</h3>
+                {% if q %}
+                    <p class="empty-desc">No drawings match your search query: "{{ q }}". Try a different term or clear the filter.</p>
+                    <div style="margin-top: 1.5rem;">
+                        <a href="{{ url_for('folder_detail', folder_id=folder.id) }}" class="btn btn-primary">Clear Filter</a>
+                    </div>
+                {% else %}
+                    <p class="empty-desc">This folder does not contain any drawing records.</p>
+                {% endif %}
+            </div>
+        {% endif %}
+    {% endif %}
+</section>
+{% endblock %}

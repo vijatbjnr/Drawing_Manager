@@ -1,0 +1,8 @@
+Flask==3.0.3
+Flask-SQLAlchemy==3.1.1
+pg8000==1.31.2
+python-dotenv==1.0.1
+Pillow==10.3.0
+gunicorn==22.0.0
+waitress==3.0.0
+

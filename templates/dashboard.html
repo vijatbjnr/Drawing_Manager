@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard | DocuVault{% endblock %}
+
+{% block content %}
+<div class="page-title-area">
+    <h1 class="page-title">Know your Drawing repository</h1>
+    <p class="page-desc">Manage, categorize, and locate construction drafts, design models, schematics, and revisions seamlessly.</p>
+</div>
+
+<!-- Statistics Cards with Hierarchical Relationship -->
+<section class="stats-relation-container">
+    <div class="stat-card">
+        <div class="stat-icon blue">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+            </svg>
+        </div>
+        <div class="stat-info">
+            <span class="stat-value">{{ global_stats.sections }}</span>
+            <div style="display:flex; flex-direction:column;">
+                <span class="stat-label">Sections</span>
+                <span class="stat-relation-tag">Parent Category</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="stat-connector">
+        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
+        </svg>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon violet">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+            </svg>
+        </div>
+        <div class="stat-info">
+            <span class="stat-value">{{ global_stats.folders }}</span>
+            <div style="display:flex; flex-direction:column;">
+                <span class="stat-label">Folders</span>
+                <span class="stat-relation-tag">Sub-grouping</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-connector">
+        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
+        </svg>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon emerald">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+        </div>
+        <div class="stat-info">
+            <span class="stat-value">{{ global_stats.drawings }}</span>
+            <div style="display:flex; flex-direction:column;">
+                <span class="stat-label">Drawings Loaded</span>
+                <span class="stat-relation-tag">Files in folders</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Master Index Navigation Banner -->
+<div class="section-card theme-emerald" style="min-height: auto; padding: 2.5rem; max-width: 800px; margin: 0 auto 3.5rem auto; box-shadow: var(--shadow-soft);">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+        <div style="width:60px; height:60px; border-radius:16px; background:rgba(16,185,129,0.08); color:var(--color-emerald); display:flex; align-items:center; justify-content:center; box-shadow: 0 8px 20px rgba(16,185,129,0.1);">
+            <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+        </div>
+        <span class="sec-badge">Plant Directory Search</span>
+    </div>
+    <h3 class="sec-card-title" style="margin-bottom:0.75rem; font-size:1.65rem; color:#065f46;">Master Index</h3>
+    <p class="sec-card-desc" style="font-size:1.05rem; margin-bottom:2rem; line-height:1.6; color:var(--text-secondary);">Access the global search index to locate drawings, models, manuals, and reports instantly across the entire digital library repository.</p>
+    <a href="{{ url_for('master_index') }}" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.85rem 2rem; border-radius: 12px; font-weight: 700; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; box-shadow: 0 8px 25px -5px rgba(16, 185, 129, 0.35);">
+        Open Master Index Search →
+    </a>
+</div>
+
+<!-- Explore Categories Banner Card -->
+<div class="section-card theme-blue" style="min-height: auto; padding: 2.25rem; max-width: 800px; margin: 0 auto 3.5rem auto; box-shadow: var(--shadow-soft);">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
+        <div style="width:54px; height:54px; border-radius:14px; background:rgba(37,99,235,0.08); color:#2563eb; display:flex; align-items:center; justify-content:center;">
+            <svg width="26" height="26" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+            </svg>
+        </div>
+        <span class="sec-badge">Archive Directory</span>
+    </div>
+    <h3 class="sec-card-title" style="margin-bottom:0.75rem; font-size:1.45rem; color:#1e40af;">Explore Document Categories</h3>
+    <p class="sec-card-desc" style="font-size:0.95rem; margin-bottom:1.75rem; line-height:1.6; color:var(--text-secondary);">Browse master indices, division sections, registers, and subfolder divisions inside the secure drawing catalog database.</p>
+    <div style="display:flex; justify-content:flex-end;">
+        <a href="{{ url_for('list_sections') }}" class="btn btn-primary" style="padding: 0.8rem 1.75rem; font-size:0.95rem; border-radius:12px;">
+            Browse Sections Directory
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
+            </svg>
+        </a>
+    </div>
+</div>
+{% endblock %}

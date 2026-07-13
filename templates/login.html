@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Log In | Drawing Library{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card-split">
+        
+        <!-- Left Side: Hero Image Banner -->
+        <img class="auth-hero-banner-img" src="{{ url_for('static', filename='resources/cement_plant_library.jpg') }}" alt="Cement Plant Digital Library">
+        
+        <!-- Right Side: Login Form -->
+        <div class="auth-form-side" style="position: relative; overflow: hidden; padding-top: 4.5rem; padding-bottom: 2rem;">
+            <!-- Top brand colored accent bar -->
+            <div style="position: absolute; top: 0; left: 0; right: 0; height: 6px; background: linear-gradient(to right, #10b981, #3b82f6); z-index: 1;"></div>
+            
+            <!-- Nuvoco Brand Logo top right -->
+            <div style="position: absolute; top: 18px; right: 24px; height: 38px; display: flex; align-items: center; justify-content: center; background: transparent; padding: 2px; z-index: 2;">
+                <img src="{{ url_for('static', filename='resources/nuvoco_logo.png') }}" alt="Nuvoco Logo" style="height: 100%; width: auto; object-fit: contain;">
+            </div>
+            
+            <!-- Plant Photo above welcome text -->
+            <div style="width: 100%; display: flex; justify-content: center; margin-bottom: 1.25rem; z-index: 1;">
+                <img src="{{ url_for('static', filename='resources/plant_bg.jpg') }}" alt="Plant Photo" style="width: 180px; height: auto; border-radius: 12px; border: 1px solid rgba(16, 185, 129, 0.18); box-shadow: 0 4px 15px rgba(0,0,0,0.06); object-fit: contain;">
+            </div>
+            
+            <!-- Styled welcome header -->
+            <div class="welcome-header-wrap" style="position: relative; margin-bottom: 1.5rem; text-align: left; z-index: 1; padding: 0 1rem;">
+                <h2 class="auth-title" style="font-family: 'Outfit', sans-serif; font-size: 1.55rem; font-weight: 800; background: linear-gradient(135deg, #0f172a, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0; letter-spacing: -0.5px;">Welcome to Drawing Library - CCP</h2>
+                <p class="auth-subtitle" style="margin-top: 0.35rem; margin-bottom: 0; font-size: 0.9rem; color: var(--text-secondary); font-weight: 500;">Log in to access your drawing catalog</p>
+            </div>
+            
+            <form action="{{ url_for('login') }}" method="POST" class="auth-form">
+                <div class="form-group" style="margin-bottom: 1.25rem;">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" id="username" name="username" class="form-control" placeholder="Enter your username" required autocomplete="username">
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 2rem;">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required autocomplete="current-password">
+                </div>
+                
+                <button type="submit" class="btn btn-primary auth-btn" style="background: linear-gradient(135deg, #10b981, #3b82f6); box-shadow: 0 8px 25px -5px rgba(16, 185, 129, 0.35);">
+                    Log In
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                    </svg>
+                </button>
+            </form>
+            
+            <div class="auth-footer">
+                Don't have an account? <a href="{{ url_for('register') }}" style="color: #10b981;">Sign Up</a>
+            </div>
+        </div>
+        
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}Sections Directory | Drawing Library{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+    <a href="{{ url_for('dashboard') }}">Dashboard</a>
+    <span class="breadcrumb-separator">/</span>
+    <span>All Sections</span>
+</div>
+
+<div class="page-title-area">
+    <h1 class="page-title">Sections Directory</h1>
+    <p class="page-desc">Browse engineering categories, manage document divisions, and explore structured drawing folder hierarchies.</p>
+</div>
+
+<!-- Sections Grid -->
+<div class="section-grid" style="margin-top: 1rem;">
+    {% for entry in sections_data %}
+        <div class="section-card theme-{{ entry.section.color_theme }}">
+            {% set name_lower = entry.section.name | lower %}
+            {% if name_lower.startswith('01') %}
+                {% set sec_key = 'maintenance' %}
+                {% set sec_name_clean = entry.section.name[3:] %}
+            {% elif name_lower.startswith('02') %}
+                {% set sec_key = 'project_documents' %}
+                {% set sec_name_clean = entry.section.name[3:] %}
+            {% elif name_lower.startswith('03') %}
+                {% set sec_key = 'received_drg_docs_others' %}
+                {% set sec_name_clean = entry.section.name[3:] %}
+            {% elif name_lower.startswith('04') %}
+                {% set sec_key = 'process_control' %}
+                {% set sec_name_clean = entry.section.name[3:] %}
+            {% elif name_lower.startswith('05') %}
+                {% set sec_key = 'hr_training' %}
+                {% set sec_name_clean = entry.section.name[3:] %}
+            {% elif name_lower.startswith('06') %}
+                {% set sec_key = 'govt_records_-_copy' %}
+                {% set sec_name_clean = entry.section.name[3:] %}
+            {% else %}
+                {% set sec_key = name_lower | replace(' ', '_') %}
+                {% set sec_name_clean = entry.section.name %}
+            {% endif %}
+            
+            <div style="display: flex; gap: 1.25rem; align-items: center; margin-bottom: 1.5rem;">
+                <!-- Section Logo Card -->
+                <div style="width: 64px; height: 64px; flex-shrink: 0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(15,23,42,0.06); background: #fff; border: 1px solid rgba(15,23,42,0.04); display: flex; align-items: center; justify-content: center;">
+                    <img src="{{ url_for('static', filename='resources/' ~ sec_key ~ '_card.png') }}" alt="{{ sec_name_clean }} Logo" style="width: 100%; height: 100%; object-fit: contain;">
+                </div>
+                
+                <div style="flex-grow: 1;">
+                    <h3 class="sec-card-title" style="font-size: 1.3rem;">{{ sec_name_clean }}</h3>
+                </div>
+            </div>
+            
+            <p class="sec-card-desc">{{ entry.section.description or 'No description available for this section.' }}</p>
+            
+            <div class="sec-card-footer">
+                <div class="sec-meta">
+                    Folders: <span>{{ entry.folder_count }}</span> • Drawings: <span>{{ entry.drawing_count }}</span>
+                </div>
+                <a href="{{ url_for('section_detail', section_id=entry.section.id) }}" class="sec-link-btn">
+                    Find your drawings
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    {% else %}
+        <div class="empty-state" style="grid-column: 1 / -1;">
+            <div class="empty-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <h3 class="empty-title">Archive is Empty</h3>
+            <p class="empty-desc">No sections have been registered in the database yet.</p>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}
